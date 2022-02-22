@@ -1,10 +1,6 @@
 import { answers } from '../words'
 
 export function getWordOfTheDay () {
-  if (import.meta.env.DEV) {
-    console.log('DEV: Answer is PRIDE')
-    return { answer: 'pride', answerDay: 1 }
-  }
 
   const now = dateToUtc(new Date())
   const start = new Date(Date.UTC(2022, 1, 15))
@@ -13,7 +9,19 @@ export function getWordOfTheDay () {
   while (day > answers.length) {
     day -= answers.length
   }
-  return { answer: answers[day], answerDay: day + 1 }
+
+  // On retourne un mot au hasard, peu importe le jour
+  let queryString = window.location.search;
+  let urlParams = new URLSearchParams(queryString);
+  let code = urlParams.get('room');
+  var indexCode : number = 0;
+  if(code) indexCode = parseInt(code.replace(/[^\d,]/g,'')) % answers.length;
+
+  let selectedWord = answers[indexCode];
+  if (import.meta.env.DEV) {
+    console.log('DEV: Answer is ' + selectedWord);
+  }
+  return { answer: selectedWord, answerDay: day + 1 }
 }
 
 function dateToUtc (d: Date) {
