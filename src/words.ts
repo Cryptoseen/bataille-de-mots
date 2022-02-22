@@ -15109,6 +15109,6 @@ export const allowedGuesses = [
 	'victorien',
 	'pilou',
 	'poules'
-}
+]
 
 export const allWords = [...answers, ...allowedGuesses];
