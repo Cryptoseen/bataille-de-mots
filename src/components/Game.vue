@@ -16,7 +16,7 @@ const { answer } = defineProps<{
 // Board state. Each tile is represented as { letter, state }
 const board = $ref(
   Array.from({ length: 6 }, () =>
-    Array.from({ length: 5 }, () => ({
+    Array.from({ length: answer.length }, () => ({
       letter: '',
       state: LetterState.INITIAL
     }))
@@ -81,7 +81,7 @@ function completeRow () {
     const guess = currentRow.map((tile) => tile.letter).join('')
     if (!allWords.includes(guess) && guess !== answer) {
       shake()
-      showMessage(`Not in word list`)
+      showMessage(`Mot inconnu 😐`)
       return
     }
 
@@ -122,7 +122,7 @@ function completeRow () {
       setTimeout(() => {
         grid = genResultGrid()
         showMessage(
-          ['Genius', 'Magnificent', 'Impressive', 'Splendid', 'Great', 'Phew'][
+          ['Giga boss', 'Magnifique', 'Impressionnant', 'Beaugosse', 'Bien', 'Juste wow'][
             currentRowIndex
           ],
           -1
@@ -145,7 +145,7 @@ function completeRow () {
     }
   } else {
     shake()
-    showMessage('Not enough letters')
+    showMessage('Pas assez de lettres !')
   }
 }
 
@@ -189,7 +189,7 @@ function genResultGrid () {
     <div id="board">
       <div v-if="message" :class="['board-message', 'backdrop-blur', success && 'board-message-success']">
         <button v-if="success" @click="message = ''" class="absolute right-6 top-3 text-gray-300 hover:text-gray-100 focus:text-gray-100 w-8 h-8 flex items-center justify-center -mr-3 rounded-full">
-          <span class="sr-only">Close dialog</span>
+          <span class="sr-only">Fermer</span>
           <svg class="w-6 h-6" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M2.96967 11.9697L11.9697 2.96967L13.0303 4.03033L4.03033 13.0303L2.96967 11.9697Z"></path>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M13.0303 11.9697L4.03033 2.96967L2.96968 4.03033L11.9697 13.0303L13.0303 11.9697Z"></path>
@@ -199,14 +199,13 @@ function genResultGrid () {
           {{ message }}
         </div>
         <div v-if="success">
-          Waiting for other players to finish...
+          On attend les nullos...
         </div>
       </div>
       <div class="board-left">
         <slot name="board-left" />
       </div>
-      <div
-        v-for="(row, index) in board"
+      <div v-for="(row, index) in board" 
         :class="[
           'row',
           shakeRowIndex === index && 'shake',
@@ -262,7 +261,6 @@ function genResultGrid () {
   grid-gap: 5px;
   box-sizing: border-box;
   height: var(--height);
-  width: min(350px, calc(var(--height) / 6 * 5));
   position: relative;
 }
 
@@ -345,13 +343,13 @@ function genResultGrid () {
 }
 
 .row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-gap: 5px;
+  display: flex;
 }
 
 .tile {
   width: 100%;
+  min-width: 60px;
+  margin: 0 5px;
   font-size: 2rem;
   line-height: 2rem;
   font-weight: bold;

@@ -1,6 +1,6 @@
 <template>
   <h1>
-    Wordle Wars
+    BATAILLE DE MOTS
   </h1>
 </template>
 

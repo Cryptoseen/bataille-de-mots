@@ -52,79 +52,8 @@ function toggleInfoOpen () {
 </script>
 
 <template>
-  <div v-if="infoOpen" class="info">
-    <div>
-      <h2>
-        <span>
-          Info
-        </span>
-        <button @click="toggleInfoOpen">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
-        </button>
-      </h2>
-      <p>
-        <strong>WORDLE WARS</strong> was built by <a class="link" href="https://twitter.com/ctnicholasdev">@ctnicholasdev</a>.
-        It's open-source and available on <a class="link" href="https://github.com/CTNicholas/wordle-wars">GitHub</a>, be creative!
-      </p>
-      <p>
-        Wordle Wars uses <a class="link" href="https://liveblocks.io/">Liveblocks</a> to add multiplayer, which I wholeheartedly recommend trying.
-        Give me a tag if you build anything fun.
-      </p>
-      <p>
-        I also write interactive web dev articles on my website: <a class="link" href="https://ctnicholas.dev">ctnicholas.dev</a>
-      </p>
-      <div class="divider" />
-      <h2 class="mt-6">How to play</h2>
-      <p>
-        Guess the <strong>WORDLE</strong> in six tries.
-      </p>
-      <p>
-        Each guess must be a valid five-letter word. Hit the enter button to submit.
-      </p>
-      <p>
-        After each guess, the color of the tiles will change to show how close your guess was to the word.
-      </p>
-      <p>
-        The player with the lowest amount of guesses wins <strong>WORDLE WARS</strong>.
-      </p>
-      <div class="divider" />
-      <p>
-        <strong>Examples</strong>
-      </p>
-      <div class="example">
-        <p>
-          <MiniBoard :large="true" :showLetters="true" :user="{ board: messages.relay }" :rows="messages.relay.length" />
-        </p>
-        <p>The letter <strong>R</strong> is in the word and in the correct spot.</p>
-      </div>
-      <div class="example">
-        <p>
-          <MiniBoard :large="true" :showLetters="true" :user="{ board: messages.happy }" :rows="messages.happy.length" />
-        </p>
-        <p>The letter <strong>A</strong> is in the word but in the wrong spot.</p>
-      </div>
-      <div class="example">
-        <p>
-          <MiniBoard :large="true" :showLetters="true" :user="{ board: messages.minds }" :rows="messages.minds.length" />
-        </p>
-        <p>No letters are in the word in any spot.</p>
-      </div>
-      <div class="divider" />
-      <p>
-        <strong>A new WORDLE will be available each day!</strong>
-      </p>
-
-    </div>
-  </div>
   <header>
     <div>
-      <button @click="toggleInfoOpen">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      </button>
       <a class="button" href="https://github.com/CTNicholas/wordle-wars" target="_blank">
         <svg class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path

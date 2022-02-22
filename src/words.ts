@@ -11554,7 +11554,6 @@ export const answers = [
 	'quelles',
 	'quelque',
 	'quelques',
-	'quelqu'un',
 	'quels',
 	'Queneau',
 	'Quentin',
@@ -12877,7 +12876,6 @@ export const answers = [
 	'sensiblement',
 	'sensibles',
 	'sensuelle',
-	's'ensuivre',
 	'sent',
 	'sentait',
 	'sentant',
@@ -15107,4 +15105,10 @@ export const answers = [
 	'zygote'
 ]
 
-export const allWords = answers;
+export const allowedGuesses = [
+	'victorien',
+	'pilou',
+	'poules'
+}
+
+export const allWords = [...answers, ...allowedGuesses];

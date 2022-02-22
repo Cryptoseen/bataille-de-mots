@@ -12,7 +12,7 @@ const [fontSize, boxSize] = large ? ['32px', '47px'] : ['16px', '25px']
 
 const emptyBoard = $ref(
   Array.from({ length: 6 }, () =>
-    Array.from({ length: 5 }, () => ({
+    Array.from({ length: 6 }, () => ({
       letter: '',
       state: LetterState.INITIAL
     }))
@@ -67,13 +67,13 @@ const currentBoard = $computed(() => {
 }
 
 .mini-board-row {
-  display: grid;
-  grid-template-columns: repeat(5, var(--box-size));
-  grid-gap: 3px;
+  display: flex;
 }
 
 .mini-board-tile {
   position: relative;
+  min-width: 25px;
+  margin: 0 2px;
 }
 
 .mini-board-tile > div {

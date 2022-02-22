@@ -28,7 +28,7 @@ function fallbackCopyTextToClipboard (text: string) {
   try {
     document.execCommand('copy')
   } catch (err) {
-    console.error('Unable to copy', err)
+    console.error('Impossible de copier', err)
   }
 
   document.body.removeChild(textArea)
