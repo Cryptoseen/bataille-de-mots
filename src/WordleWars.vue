@@ -227,6 +227,12 @@ function createEmojiScore (successGrid: string) {
   <ExampleWrapper>
     <Header/>
     <div class="transition-wrapper">
+      <div v-if="gameState === GameState.CONNECTING" id="connecting">
+        <div class="flex flex-col items-center justify-center text-2xl">
+          <i class="gg-spinner-two" width="20"></i>
+          <p class="mt-5">CONNEXION</p>
+        </div>
+      </div>
 
       <div v-if="gameState === GameState.INTRO" id="intro">
         <div>
@@ -588,5 +594,37 @@ h2 {
 	}
 }
 
+@keyframes spinner-two {
+    0% {transform: rotate(0deg)}
+    to {transform: rotate(359deg)}
+}
+.gg-spinner-two {
+    transform: scale(var(--ggs,1));
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    width: 50px;
+    height: 50px
+}
+.gg-spinner-two::after,
+.gg-spinner-two::before {
+    box-sizing: border-box;
+    display: block;
+    width: 50px;
+    height: 50px;
+    content: "";
+    position: absolute;
+    border-radius: 100px
+}
+.gg-spinner-two::before {
+    animation: spinner-two 1s cubic-bezier(.6,0,.4,1) infinite;
+    border: 3px solid transparent;
+    border-bottom-color: currentColor;
+    border-top-color: currentColor
+}
+.gg-spinner-two::after {
+    border: 3px solid;
+    opacity: .2
+}
 
 </style>
