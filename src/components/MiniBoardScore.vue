@@ -32,7 +32,7 @@ const { user, number, showLetters = false } = defineProps<{
   color: #000;
 }
 
-.dark .mini-board-name {
+.mini-board-name {
   color: #fff;
 }
 

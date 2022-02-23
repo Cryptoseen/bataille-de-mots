@@ -41,31 +41,6 @@ let copyLinkMessage = $ref('')
 
 // Thème
 
-const defaultDarkTheme = (() => {
-  let dark
-  const alreadySet = localStorage.getItem('darkMode')
-  if (alreadySet) {
-	dark = alreadySet === 'on'
-  } else {
-	dark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || false
-  }
-  if (dark) {
-	document.documentElement.classList.add('dark')
-  }
-  return dark
-})()
-
-const defaultColourBlindTheme = (() => {
-  if (localStorage.getItem('colourBlindMode') === 'on') {
-	document.documentElement.classList.add('colourblind')
-	return true
-  }
-  return false
-})()
-
-const darkMode = $ref(defaultDarkTheme)
-const colourBlindMode = $ref(defaultColourBlindTheme)
-
 // Custom Liveblocks hooks, based on the Liveblocks React library
 const [myPresence, updateMyPresence] = useMyPresence()
 const others = useOthers()
@@ -250,7 +225,7 @@ function createEmojiScore (successGrid: string) {
 
 <template>
   <ExampleWrapper>
-    <Header :darkMode="darkMode" :colorBlindMode="colorBlindMode" />
+    <Header/>
     <div class="transition-wrapper">
 
       <div v-if="gameState === GameState.INTRO" id="intro">
@@ -280,7 +255,7 @@ function createEmojiScore (successGrid: string) {
           <h2>En attente d'autres joueurs</h2>
           <div class="waiting-list">
             <div class="waiting-player">
-              <span>{{ myPresence.name }} (moi)</span>
+              <span class="mr-5">{{ myPresence.name }} (moi)</span>
               <div :class="[myPresence.stage === GameState.READY ? 'waiting-player-ready' : 'waiting-player-waiting']">
                 {{ myPresence.stage === GameState.READY ? 'Prêt' : 'Se prépare...' }}
               </div>
@@ -355,259 +330,263 @@ function createEmojiScore (successGrid: string) {
 </template>
 
 <style scoped>
+
+
 .transition-wrapper {
-  position: relative;
-  height: 100%;
+	position: relative;
+	height: 100%
 }
 
-.transition-wrapper > div {
-  min-height: 100%;
+.transition-wrapper>div {
+	min-height: 100%
 }
 
-#connecting, #intro, #waiting {
-  font-size: 18px;
-  background: #f4f4f4;
-}
-
-.dark #connecting, .dark #intro, .dark #waiting, .dark #scores {
-  background: #18181B;
+#connecting,
+#intro,
+#waiting {
+	font-size: 18px;
+	background: #18181b
 }
 
 #connecting {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center
 }
 
-#intro > div, #waiting > div {
-  min-width: 320px;
-  width: max-content;
-  max-width: 100%;
-  background: #fff;
-  padding: 40px 35px 30px 35px;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
+#intro>div,
+#waiting>div {
+	min-width: 320px;
+	width: max-content;
+	max-width: 100%;
+	background: #fff;
+	padding: 40px 35px 30px 35px;
+	display: flex;
+	align-items: center;
+	flex-direction: column
 }
 
-.dark #intro > div, .dark #waiting > div {
-  background: #27272A;
+#intro>div,
+#waiting>div {
+	background: #27272a
 }
 
 label {
-  font-size: 16px;
-  font-weight: 500;
-  opacity: 0.6;
+	font-size: 16px;
+	font-weight: 500;
+	opacity: .6
 }
 
 input {
-  padding: 8px 10px;
-  border-radius: 4px;
-  border: 1px solid lightgrey;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.dark input {
-  background: #18181B;
-  border-color: #52525B;
+	padding: 8px 10px;
+	border-radius: 4px;
+	border: 1px solid #d3d3d3;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .05);
+	background: #18181b;
+	border-color: #52525b
 }
 
 button {
-  width: 100%;
-  padding: 9px 10px;
-  border-radius: 4px;
-  color: #fff;
-  font-weight: 600;
-  transition: background-color ease-in-out 150ms, opacity 150ms ease-in-out;
-  margin-bottom: 0;
+	width: 100%;
+	padding: 9px 10px;
+	border-radius: 4px;
+	color: #fff;
+	font-weight: 600;
+	transition: background-color ease-in-out 150ms, opacity 150ms ease-in-out;
+	margin-bottom: 0
 }
 
 button:disabled {
-  background-color: #1bb238 !important;
+	background-color: #1bb238!important
 }
 
 button:hover {
-  background-color: #28c549;
+	background-color: #28c549
 }
 
 button:active {
-  background-color: #1bb238;
+	background-color: #1bb238
 }
 
-input:focus-visible, input:focus, button:focus-visible {
-  outline: 2px solid #118f2b;
+button:focus-visible,
+input:focus,
+input:focus-visible {
+	outline: 2px solid #118f2b
 }
 
 h2 {
-  font-size: 24px;
-  font-weight: 500;
-  text-align: center;
-  margin-bottom: 24px;
+	font-size: 24px;
+	font-weight: 500;
+	text-align: center;
+	margin-bottom: 24px
 }
 
-#intro, #waiting, #playing {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-grow: 1;
+#intro,
+#playing,
+#waiting {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	flex-grow: 1
 }
 
 #playing {
-  justify-content: space-between;
+	justify-content: space-between
 }
 
 .mini-board-container {
-  margin: 0 40px;
-  display: grid;
-  grid-template-rows: repeat(2, calc(var(--height) / 2));
-  grid-auto-columns: auto;
-  grid-auto-flow: column;
-  gap: 0 40px;
+	margin: 0 40px;
+	display: grid;
+	grid-template-rows: repeat(2, calc(var(--height)/ 2));
+	grid-auto-columns: auto;
+	grid-auto-flow: column;
+	gap: 0 40px
 }
 
-#intro form, .waiting-list {
-  width: 100%;
-  margin: 0 auto;
+#intro form,
+.waiting-list {
+	width: 100%;
+	margin: 0 auto
 }
 
-#intro form > * {
-  margin-bottom: 12px;
-  width: 100%;
+#intro form>* {
+	margin-bottom: 12px;
+	width: 100%
 }
 
-#intro form > *:last-child {
-  margin-bottom: 0;
+#intro form>:last-child {
+	margin-bottom: 0
 }
 
 #intro form label {
-  text-align: left;
+	text-align: left
 }
 
 .small-center-message {
-  width: 100%;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 500;
-  opacity: 0.6;
-  margin-top: 12px;
+	width: 100%;
+	text-align: center;
+	font-size: 16px;
+	font-weight: 500;
+	opacity: .6;
+	margin-top: 12px
 }
 
 .waiting-player {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px
 }
 
-.waiting-player-waiting, .waiting-player-ready {
-  font-weight: 600;
+.waiting-player-ready,
+.waiting-player-waiting {
+	font-weight: 600
 }
 
 .waiting-player-message {
-  margin-top: 24px;
+	margin-top: 24px
 }
 
 .start-animation {
-  position: fixed;
-  display: flex;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  justify-content: center;
-  align-items: center;
+	position: fixed;
+	display: flex;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	justify-content: center;
+	align-items: center
 }
 
 #scores {
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  flex-direction: column;
-  padding-top: 20px;
+	flex-grow: 1;
+	display: flex;
+	justify-content: center;
+	align-items: stretch;
+	flex-direction: column;
+	padding-top: 20px
 }
 
-#scores > div {
-  max-width: 538px;
-  width: 100%;
-  margin: 0 auto;
-  padding-bottom: 60px;
-  position: relative;
+#scores>div {
+	max-width: 538px;
+	width: 100%;
+	margin: 0 auto;
+	padding-bottom: 60px;
+	position: relative
 }
 
 #scores h2 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px
 }
 
 .scores-grid {
-  width: 100%;
-  display: grid;
-  margin: 28px 0 10px;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: auto;
-  grid-gap: 40px;
+	width: 100%;
+	display: grid;
+	margin: 28px 0 10px;
+	grid-template-columns: repeat(2, 1fr);
+	grid-auto-rows: auto;
+	grid-gap: 40px
 }
 
 .confetti-wrapper {
-  position: fixed;
-  top: -15%;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 50;
-  pointer-events: none;
+	position: fixed;
+	top: -15%;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 50;
+	pointer-events: none
 }
 
 .fade-scores-enter-active,
-.fade-scores-leave-active,
 .fade-scores-enter-from,
+.fade-scores-leave-active,
 .fade-scores-leave-to {
-  left: 50%;
-  transform: translateX(-50%);
+	left: 50%;
+	transform: translateX(-50%)
 }
 
-@media (max-width: 415px) {
-  header h1 {
-    font-size: 28px;
-  }
+@media (max-width:415px) {
+	header h1 {
+		font-size: 28px
+	}
 }
 
-@media (max-width: 715px) {
-  #intro, #waiting {
-    display: block;
-    background: #fff;
-  }
-
-  #intro > div, #waiting > div {
-    margin: 0 auto;
-    box-shadow: none;
-  }
-
-  #intro > div, #waiting > div {
-    background: transparent !important;
-  }
-
-  #scores > div {
-    max-width: 250px;
-  }
-
-  #scores h2 {
-    flex-direction: column;
-  }
-
-  .scores-grid {
-    width: 250px;
-    grid-template-columns: repeat(1, 1fr);
-  }
+@media (max-width:715px) {
+	#intro,
+	#waiting {
+		display: block;
+		background: #fff
+	}
+	#intro>div,
+	#waiting>div {
+		margin: 0 auto;
+		box-shadow: none
+	}
+	#intro>div,
+	#waiting>div {
+		background: 0 0!important
+	}
+	#scores>div {
+		max-width: 250px
+	}
+	#scores h2 {
+		flex-direction: column
+	}
+	.scores-grid {
+		width: 250px;
+		grid-template-columns: repeat(1, 1fr)
+	}
 }
+
 
 </style>

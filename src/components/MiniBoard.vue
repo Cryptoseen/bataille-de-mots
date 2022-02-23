@@ -72,7 +72,7 @@ const currentBoard = $computed(() => {
 
 .mini-board-tile {
   position: relative;
-  min-width: 35px;
+  min-width: 25px;
   margin: 0 2px;
 }
 
@@ -85,14 +85,9 @@ const currentBoard = $computed(() => {
 }
 
 .mini-board-tile-unset {
-  border: 1px solid #d3d6da;
-  background: #fff;
+  border: 1px solid #3F3F46;
   border-radius: var(--border-radius);
-}
-
-.dark .mini-board-tile-unset {
   background: #18181B;
-  border-color: #3F3F46;
 }
 
 .mini-board-tile .front,

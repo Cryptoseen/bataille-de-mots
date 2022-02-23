@@ -69,7 +69,7 @@ const { answerLength, sortedUsers, shrink = false } = defineProps<{
   text-align: left;
 }
 
-.dark .mini-score-score {
+.mini-score-score {
   color: #A1A1AA;
 }
 
@@ -80,7 +80,7 @@ const { answerLength, sortedUsers, shrink = false } = defineProps<{
   text-align: center;
 }
 
-.dark .mini-score-name {
+.mini-score-name {
   color: #E5E7EB;
 }
 
