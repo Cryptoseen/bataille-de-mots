@@ -141,13 +141,13 @@ input, button {
 .colourblind .unready-button,
 .colourblind .unready-button:disabled,
 .colourblind .unready-button:active {
-  background-color: #04c408;
+  background-color: #02aa05;
 }
 .colourblind .waiting-player-waiting {
-  color: #04c408;
+  color: #02aa05;
 }
 .colourblind .unready-button:hover {
-  background-color: #13ee18;
+  background-color: #14cf17;
 }
 
 /* DARK COLOURBLIND MODE */
@@ -174,7 +174,7 @@ input, button {
   color: #04c408;
 }
 .dark.colourblind .unready-button:hover {
-  background-color: #13ee18;
+  background-color: #02aa05;
 }
 
 /* ALL MODES */

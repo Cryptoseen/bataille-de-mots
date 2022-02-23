@@ -335,7 +335,7 @@ function createEmojiScore (successGrid: string) {
 
 #connecting, #intro, #waiting {
   font-size: 18px;
-  background: #eff5f0;
+  background: #f4f4f4;
 }
 
 .dark #connecting, .dark #intro, .dark #waiting, .dark #scores {
@@ -350,7 +350,7 @@ function createEmojiScore (successGrid: string) {
 }
 
 #intro > div, #waiting > div {
-  width: 320px;
+  min-width: 320px;
   max-width: 100%;
   background: #fff;
   padding: 40px 35px 30px 35px;
