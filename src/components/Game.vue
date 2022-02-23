@@ -78,7 +78,7 @@ function clearTile () {
 
 function completeRow () {
   if (currentRow.every((tile) => tile.letter)) {
-    const guess = currentRow.map((tile) => tile.letter).join('')
+    const guess = currentRow.map((tile) => tile.letter).join('').toLowerCase()
     if (!allWords.includes(guess) && guess !== answer) {
       shake()
       showMessage(`Mot inconnu 😐`)

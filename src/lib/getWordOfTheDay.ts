@@ -21,7 +21,7 @@ export function getWordOfTheDay () {
   if (import.meta.env.DEV) {
     console.log('DEV: Answer is ' + selectedWord);
   }
-  return { answer: selectedWord, answerDay: day + 1 }
+  return { answer: selectedWord.toLowerCase(), answerDay: day + 1 }
 }
 
 function dateToUtc (d: Date) {
