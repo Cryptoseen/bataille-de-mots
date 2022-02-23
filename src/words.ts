@@ -15108,7 +15108,13 @@ export const answers = [
 export const allowedGuesses = [
 	'victorien',
 	'pilou',
-	'poules'
+	'poules',
+	'historienne',
+	'poissoniere',
+	'evangelique',
+	'jardinieres',
+	'geometrique',
+	'poils'
 ]
 
 export const allWords = [...answers, ...allowedGuesses];
