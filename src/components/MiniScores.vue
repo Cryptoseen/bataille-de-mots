@@ -2,9 +2,10 @@
 import { OtherUser } from '../types'
 import ScoreCard from './ScoreCard.vue'
 
-const { sortedUsers, shrink = false } = defineProps<{
+const { answerLength, sortedUsers, shrink = false } = defineProps<{
+  answerLength: number,
   sortedUsers: OtherUser[],
-  shrink?: boolean
+  shrink?: boolean,
 }>()
 
 </script>
@@ -12,21 +13,20 @@ const { sortedUsers, shrink = false } = defineProps<{
 <template>
   <div class="mini-score-container">
     <div v-for="(user, index) in sortedUsers" :class="['mini-score', shrink && 'shrink']">
-
       <div class="mini-score-score">
         {{ index + 1 }}.
       </div>
       <div class="mini-score-name">{{ user.name }}</div>
-      <ScoreCard :user="user" />
+      <ScoreCard :answerLength="answerLength" :user="user" />
     </div>
     <div :class="['mini-score-mobile', shrink && 'shrink']">
-      <span v-if="sortedUsers[0].score.correct === 5">
+      <span v-if="sortedUsers[0].score.correct === answerLength">
         <span class="mini-score-name">{{ sortedUsers[0].name }}</span> a terminé !
       </span>
       <span v-else>
         <span class="mini-score-name">{{ sortedUsers[0].name }}</span> est en tête avec 
       </span>
-      <ScoreCard :user="sortedUsers[0]" />
+      <ScoreCard :answerLength="answerLength" :user="sortedUsers[0]" />
     </div>
   </div>
 </template>

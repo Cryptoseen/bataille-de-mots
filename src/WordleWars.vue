@@ -276,7 +276,7 @@ function createEmojiScore (successGrid: string) {
 
 
       <div v-if="gameState === GameState.PLAYING || gameState === GameState.COMPLETE" id="playing">
-        <MiniScores :sortedUsers="sortedUsers" :shrink="true" />
+        <MiniScores :answerLength="answer.length" :sortedUsers="sortedUsers" :shrink="true" />
         <Game :answer="answer" @lettersGuessed="onLettersGuessed" @gameComplete="onGameComplete">
           <template v-slot:board-left>
             <div class="mini-board-container">
