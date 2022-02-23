@@ -72,7 +72,7 @@ const currentBoard = $computed(() => {
 
 .mini-board-tile {
   position: relative;
-  min-width: 25px;
+  min-width: 35px;
   margin: 0 2px;
 }
 
