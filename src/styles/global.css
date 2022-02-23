@@ -38,11 +38,12 @@ input, button {
 }
 
 .divider {
-  background: lightgrey;
-  height: 1px;
+  background: rgb(165, 165, 165);
+  opacity: .7;
+  height: 1.5px;
   display: block;
   width: 100%;
-  margin: 24px 0 0;
+  margin: 24px 0;
 }
 
 .dark .divider {
@@ -69,6 +70,22 @@ input, button {
 .dark .keyboard-button {
   background: #71717A;
   color: #fff;
+}
+
+button.button-simple:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.dark button.button-simple:hover, .dark button.button-simple:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+button.button-simple svg{
+  fill: black;
+}
+
+.dark button.button-simple svg{
+  fill: white;
 }
 
 /* LIGHT MODE */

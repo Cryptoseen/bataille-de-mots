@@ -41,7 +41,6 @@ const { answerLength, sortedUsers, shrink = false } = defineProps<{
   gap: 18px;
   margin: 0 auto;
   width: 100%;
-  max-width: 350px;
   font-size: 22px;
   padding-top: 20px;
 }

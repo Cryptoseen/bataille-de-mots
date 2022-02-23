@@ -11,6 +11,7 @@ import Game from './components/Game.vue'
 import { useList, useOthers, useMyPresence } from './lib-liveblocks'
 import { copyTextToClipboard, copyUrlToClipboard } from './lib/copyText'
 import { getWordOfTheDay } from './lib/getWordOfTheDay'
+import { getRandomUsername } from './lib/getRandomUsername'
 import { sortUsers } from './lib/sortUsers'
 import messages from './lib/messages'
 import Header from './components/Header.vue'
@@ -29,13 +30,41 @@ import Header from './components/Header.vue'
 // Get word of the day. Resets at UTC +00:00
 const { answer, answerDay } = getWordOfTheDay()
 
+const { randomUsername } = getRandomUsername()
+
 // Current state of game, username, etc
 let gameState: GameState = $ref(GameState.CONNECTING)
-let username = $ref(localStorage.getItem('username') || '')
-let startAnimation = $ref(false)
+let username = $ref(localStorage.getItem('username') || randomUsername)
 let confettiAnimation = $ref(false)
 let emojiScore = $ref('')
 let copyLinkMessage = $ref('')
+
+// Thème
+
+const defaultDarkTheme = (() => {
+  let dark
+  const alreadySet = localStorage.getItem('darkMode')
+  if (alreadySet) {
+	dark = alreadySet === 'on'
+  } else {
+	dark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || false
+  }
+  if (dark) {
+	document.documentElement.classList.add('dark')
+  }
+  return dark
+})()
+
+const defaultColourBlindTheme = (() => {
+  if (localStorage.getItem('colourBlindMode') === 'on') {
+	document.documentElement.classList.add('colourblind')
+	return true
+  }
+  return false
+})()
+
+const darkMode = $ref(defaultDarkTheme)
+const colourBlindMode = $ref(defaultColourBlindTheme)
 
 // Custom Liveblocks hooks, based on the Liveblocks React library
 const [myPresence, updateMyPresence] = useMyPresence()
@@ -94,9 +123,7 @@ const gameEvents: { [key in GameState]?: () => void } = {
   // When all users are in the READY or PLAYING stages, start game
   [GameState.READY]: () => {
     if (allInStages([GameState.READY, GameState.PLAYING])) {
-      startAnimation = true
       setTimeout(() => {
-        startAnimation = false
         updateGameStage(GameState.PLAYING)
       }, 800)
     }
@@ -217,19 +244,22 @@ function createEmojiScore (successGrid: string) {
 
 <template>
   <ExampleWrapper>
-    <Header />
-
+    <Header :darkMode="darkMode" :colorBlindMode="colorBlindMode" />
     <div class="transition-wrapper">
-      <div v-if="gameState === GameState.CONNECTING" id="connecting">
-        <MiniBoard class="animate-ping" :large="true" :showLetters="true" :user="{ board: messages.connecting }" :rows="messages.connecting.length" />
-      </div>
 
       <div v-if="gameState === GameState.INTRO" id="intro">
         <div>
           <h2>Déclinez votre identité</h2>
           <form @submit.prevent="enterWaitingRoom">
             <label for="set-username">Je suis ...</label>
-            <input type="text" id="set-username" v-model="username" autocomplete="off" required />
+            <div class="flex items-center">
+              <input type="text" id="set-username" v-model="username" autocomplete="off" required />
+              <button type="button" class="mt-0 ml-2 button-simple" @click="getRandomUsername()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path d="M13.5 2c-5.621 0-10.211 4.443-10.475 10h-3.025l5 6.625 5-6.625h-2.975c.257-3.351 3.06-6 6.475-6 3.584 0 6.5 2.916 6.5 6.5s-2.916 6.5-6.5 6.5c-1.863 0-3.542-.793-4.728-2.053l-2.427 3.216c1.877 1.754 4.389 2.837 7.155 2.837 5.79 0 10.5-4.71 10.5-10.5s-4.71-10.5-10.5-10.5z"/>
+                </svg>
+              </button>
+            </div>
             <button class="ready-button">Rejoindre</Button>
           </form>
           <div class="divider" />
@@ -268,12 +298,8 @@ function createEmojiScore (successGrid: string) {
             </button>
           </div>
 
-          <div v-if="startAnimation" class="start-animation">
-            <MiniBoard class="animate-ping" :large="true" :showLetters="true" :user="{ board: messages.fight }" :rows="messages.fight.length" />
-          </div>
         </div>
       </div>
-
 
       <div v-if="gameState === GameState.PLAYING || gameState === GameState.COMPLETE" id="playing">
         <MiniScores :answerLength="answer.length" :sortedUsers="sortedUsers" :shrink="true" />
@@ -290,7 +316,6 @@ function createEmojiScore (successGrid: string) {
           </template>
         </Game>
       </div>
-
 
       <Transition name="fade-scores">
         <div v-if="gameState === GameState.SCORES" id="scores">
@@ -351,10 +376,10 @@ function createEmojiScore (successGrid: string) {
 
 #intro > div, #waiting > div {
   min-width: 320px;
+  width: max-content;
   max-width: 100%;
   background: #fff;
   padding: 40px 35px 30px 35px;
-  border-radius: 4px;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -389,7 +414,6 @@ button {
   color: #fff;
   font-weight: 600;
   transition: background-color ease-in-out 150ms, opacity 150ms ease-in-out;
-  margin-top: 24px;
   margin-bottom: 0;
 }
 
@@ -440,12 +464,10 @@ h2 {
 
 #intro form, .waiting-list {
   width: 100%;
-  max-width: 250px;
   margin: 0 auto;
 }
 
 #intro form > * {
-  display: block;
   margin-bottom: 12px;
   width: 100%;
 }
