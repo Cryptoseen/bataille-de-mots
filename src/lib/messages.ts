@@ -26,69 +26,69 @@ const enterYourName = [
   ]
 ]
 
-const relay = [
+const abone = [
   [
-    { letter: 'r', state: 'correct' },
-    { letter: 'e', state: 'absent' },
-    { letter: 'l', state: 'absent' },
-    { letter: 'a', state: 'absent' },
-    { letter: 'y', state: 'absent' }
-  ],
-]
-
-const happy = [
-  [
-    { letter: 'h', state: 'absent' },
-    { letter: 'a', state: 'present' },
-    { letter: 'p', state: 'absent' },
-    { letter: 'p', state: 'absent' },
-    { letter: 'y', state: 'absent' }
-  ],
-]
-
-const minds = [
-  [
-    { letter: 'm', state: 'absent' },
-    { letter: 'i', state: 'absent' },
+    { letter: 'a', state: 'correct' },
+    { letter: 'b', state: 'absent' },
+    { letter: 'o', state: 'absent' },
     { letter: 'n', state: 'absent' },
-    { letter: 'd', state: 'absent' },
-    { letter: 's', state: 'absent' }
+    { letter: 'e', state: 'absent' }
+  ],
+]
+
+const gizem = [
+  [
+    { letter: 'g', state: 'absent' },
+    { letter: 'i', state: 'present' },
+    { letter: 'z', state: 'absent' },
+    { letter: 'e', state: 'absent' },
+    { letter: 'm', state: 'absent' }
+  ],
+]
+
+const falez = [
+  [
+    { letter: 'f', state: 'absent' },
+    { letter: 'a', state: 'absent' },
+    { letter: 'l', state: 'absent' },
+    { letter: 'e', state: 'absent' },
+    { letter: 'z', state: 'absent' }
   ],
 ]
 
 
 const fight = [
   [
-    { letter: 'f', state: 'correct' },
-    { letter: 'i', state: 'correct' },
-    { letter: 'g', state: 'correct' },
-    { letter: 'h', state: 'correct' },
-    { letter: 't', state: 'correct' }
+    { letter: 'b', state: 'correct' },
+    { letter: 'a', state: 'correct' },
+    { letter: 'ş', state: 'correct' },
+    { letter: 'l', state: 'correct' },
+    { letter: 'a', state: 'correct' }
   ],
 ]
 
 const connecting = [
   [
-    { letter: 'f', state: 'correct' },
-    { letter: 'i', state: 'correct' },
+    { letter: 'ö', state: 'correct' },
     { letter: 'n', state: 'correct' },
-    { letter: 'd', state: 'correct' },
+    { letter: 'c', state: 'correct' },
+    { letter: 'e', state: 'correct' },
     { letter: '', state: 'absent' }
   ],
   [
-    { letter: 't', state: 'present' },
-    { letter: 'h', state: 'present' },
-    { letter: 'o', state: 'present' },
+    { letter: '', state: 'absent' },
     { letter: 's', state: 'present' },
     { letter: 'e', state: 'present' },
+    { letter: 'n', state: 'present' },
+    { letter: '', state: 'absent' },
   ],
   [
-    { letter: 'w', state: 'correct' },
-    { letter: 'o', state: 'correct' },
-    { letter: 'r', state: 'correct' },
-    { letter: 'd', state: 'correct' },
-    { letter: 's', state: 'correct' },
+    { letter: '', state: 'absent' },
+    { letter: '', state: 'absent' },
+    { letter: 'b', state: 'correct' },
+    { letter: 'u', state: 'correct' },
+    { letter: 'l', state: 'correct' },
   ]
 ]
 
-export default { wordToBoard, relay, happy, minds, connecting, fight, enterYourName }
+export default { wordToBoard, abone, gizem, falez, connecting, fight, enterYourName }

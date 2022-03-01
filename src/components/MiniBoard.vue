@@ -12,7 +12,7 @@ const [fontSize, boxSize] = large ? ['32px', '47px'] : ['16px', '25px']
 
 const emptyBoard = $ref(
   Array.from({ length: 6 }, () =>
-    Array.from({ length: 6 }, () => ({
+    Array.from({ length: 5 }, () => ({
       letter: '',
       state: LetterState.INITIAL
     }))
@@ -45,7 +45,7 @@ const currentBoard = $computed(() => {
               animationDelay: `${index * 100}ms`
             }"
           >
-            {{ showLetters ? tile.letter.toUpperCase() : '' }}
+            {{ showLetters ? tile.letter.toLocaleUpperCase('tr-TR') : '' }}
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ const currentBoard = $computed(() => {
 .mini-board {
   --box-size: v-bind(boxSize);
   --board-rows: v-bind(rows);
-  --border-radius: 2px;
+  --border-radius: 4px;
 
   font-size: v-bind(fontSize);
   display: grid;
@@ -67,13 +67,13 @@ const currentBoard = $computed(() => {
 }
 
 .mini-board-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, var(--box-size));
+  grid-gap: 3px;
 }
 
 .mini-board-tile {
   position: relative;
-  min-width: 25px;
-  margin: 0 2px;
 }
 
 .mini-board-tile > div {
@@ -85,9 +85,14 @@ const currentBoard = $computed(() => {
 }
 
 .mini-board-tile-unset {
-  border: 1px solid #3F3F46;
+  border: 1px solid #d3d6da;
+  background: #fff;
   border-radius: var(--border-radius);
+}
+
+.dark .mini-board-tile-unset {
   background: #18181B;
+  border-color: #3F3F46;
 }
 
 .mini-board-tile .front,

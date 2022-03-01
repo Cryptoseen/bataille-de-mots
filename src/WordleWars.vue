@@ -8,10 +8,9 @@ import MiniBoardScore from './components/MiniBoardScore.vue'
 import MiniScores from './components/MiniScores.vue'
 import MiniBoard from './components/MiniBoard.vue'
 import Game from './components/Game.vue'
-import { useList, useOthers, useMyPresence } from './lib-liveblocks'
+import { useList, useOthers, usePresence } from './lib-liveblocks'
 import { copyTextToClipboard, copyUrlToClipboard } from './lib/copyText'
 import { getWordOfTheDay } from './lib/getWordOfTheDay'
-import { getRandomUsername } from './lib/getRandomUsername'
 import { sortUsers } from './lib/sortUsers'
 import messages from './lib/messages'
 import Header from './components/Header.vue'
@@ -30,27 +29,24 @@ import Header from './components/Header.vue'
 // Get word of the day. Resets at UTC +00:00
 const { answer, answerDay } = getWordOfTheDay()
 
-const { randomUsername } = getRandomUsername()
-
 // Current state of game, username, etc
 let gameState: GameState = $ref(GameState.CONNECTING)
-let username = $ref(localStorage.getItem('username') || randomUsername)
+let username = $ref(localStorage.getItem('username') || '')
+let startAnimation = $ref(false)
 let confettiAnimation = $ref(false)
 let emojiScore = $ref('')
 let copyLinkMessage = $ref('')
 
-// Thème
-
 // Custom Liveblocks hooks, based on the Liveblocks React library
-const [myPresence, updateMyPresence] = useMyPresence()
+const [myPresence, updateMyPresence] = usePresence()
 const others = useOthers()
 const savedScores = useList('scores-' + answer)
 
 // Get all others with presence, and return their presence
 let othersPresence = $computed(() => {
   return others?.value
-    ? [...others.value].filter(other => other.presence).map(other => other.presence)
-    : []
+      ? [...others.value].filter(other => other.presence).map(other => other.presence)
+      : []
 })
 
 // Filter others by odd or even number for live scores on either side of screen
@@ -98,7 +94,9 @@ const gameEvents: { [key in GameState]?: () => void } = {
   // When all users are in the READY or PLAYING stages, start game
   [GameState.READY]: () => {
     if (allInStages([GameState.READY, GameState.PLAYING])) {
+      startAnimation = true
       setTimeout(() => {
+        startAnimation = false
         updateGameStage(GameState.PLAYING)
       }, 800)
     }
@@ -129,12 +127,6 @@ function updateGameStage (stage: GameState) {
   }
 }
 
-function updateUserName(){
-  let newUsername = getRandomUsername()
-  localStorage.setItem('username', newUsername.randomUsername)
-  username = newUsername.randomUsername
-}
-
 // Returns true if every user is in one of the `stages`
 function allInStages (stages: GameState[]) {
   if (!others?.value || !others?.value.count) {
@@ -143,7 +135,7 @@ function allInStages (stages: GameState[]) {
   let myPresenceFound = false
   return stages.some(stage => {
     const othersReady = others.value?.toArray().every(
-      other => other.presence && other.presence.stage === stage
+        other => other.presence && other.presence.stage === stage
     )
     myPresenceFound = myPresenceFound || myPresence!.value.stage === stage
     return Boolean(othersReady)
@@ -196,7 +188,7 @@ function onGameComplete ({ success, successGrid }: GameCompleteProps) {
   updateGameStage(GameState.COMPLETE)
   let updatedPresence: { timeFinished: number, score?: {} } = { timeFinished: Number(Date.now()) }
   if (success) {
-    updatedPresence = { ...updatedPresence, score: { ...myPresence.value.score, [LetterState.CORRECT]: answer.length }}
+    updatedPresence = { ...updatedPresence, score: { ...myPresence.value.score, [LetterState.CORRECT]: 5 }}
     confettiAnimation = true
     setTimeout(() => confettiAnimation = false, 3000)
   }
@@ -208,88 +200,119 @@ function onGameComplete ({ success, successGrid }: GameCompleteProps) {
 // Copy link on click button
 function onCopyLink () {
   copyUrlToClipboard()
-  copyLinkMessage = 'Copié'
+  copyLinkMessage = 'Kopyalandı'
   setTimeout(() => copyLinkMessage = '', 1400)
+}
+function onCopyScoreBoard (text:string) {
+  copyTextToClipboard(text)
+  if (!import.meta.env.DEV && navigator.share) {
+    navigator.share({url: window.location.href}).then(() => console.log('Link paylaşım için kopyalandı'))
+        .catch((error) => console.log('Bir hata mevcut', error))
+    console.log(navigator.share({text: text}))
+  }
+  copyLinkMessage = 'Kopyalandı'
 }
 
 // Create emoji scores
 function createEmojiScore (successGrid: string) {
-  let resultString = `#BatailleDeMot #${answerDay}\n\n`
+  let resultString = `#WordleWars #${answerDay}\n\n`
   sortedUsers.forEach((user, index) => {
     resultString += `${index + 1}. ${user.name}\n`
   })
   resultString += '\n' + successGrid
-  return resultString + '\n\nhttps://wleb.fr/bataille-de-mots'
+  return resultString + '\n\nhttps://wordletr.vercel.app'
 }
 </script>
 
 <template>
   <ExampleWrapper>
-    <Header/>
+    <Header />
+
     <div class="transition-wrapper">
       <div v-if="gameState === GameState.CONNECTING" id="connecting">
-        <div class="flex flex-col items-center justify-center text-2xl">
-          <i class="gg-spinner-two" width="20"></i>
-          <p class="mt-5">CONNEXION</p>
-        </div>
+        <MiniBoard class="animate-ping" :large="true" :showLetters="true" :user="{ board: messages.connecting }" :rows="messages.connecting.length" />
       </div>
 
       <div v-if="gameState === GameState.INTRO" id="intro">
         <div>
-          <h2>Déclinez votre identité</h2>
+          <h2>Adınızı giriniz</h2>
           <form @submit.prevent="enterWaitingRoom">
-            <label for="set-username">Je suis ...</label>
-            <div class="flex items-center">
-              <input type="text" id="set-username" v-model="username" autocomplete="off" required />
-              <button type="button" class="mt-0 ml-2 button-simple" @click="updateUserName()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                  <path d="M13.5 2c-5.621 0-10.211 4.443-10.475 10h-3.025l5 6.625 5-6.625h-2.975c.257-3.351 3.06-6 6.475-6 3.584 0 6.5 2.916 6.5 6.5s-2.916 6.5-6.5 6.5c-1.863 0-3.542-.793-4.728-2.053l-2.427 3.216c1.877 1.754 4.389 2.837 7.155 2.837 5.79 0 10.5-4.71 10.5-10.5s-4.71-10.5-10.5-10.5z"/>
-                </svg>
-              </button>
-            </div>
-            <button class="ready-button">Rejoindre</Button>
+            <label for="set-username">Kullanıcı adı</label>
+            <input type="text" id="set-username" v-model="username" autocomplete="off" required />
+            <button class="ready-button">Kapışmaya katıl</Button>
           </form>
           <div class="divider" />
-          <button class="copy-button" @click="onCopyLink" :disabled="!!copyLinkMessage">
-            {{ copyLinkMessage || 'Copier le lien' }} <svg xmlns="http://www.w3.org/2000/svg" class="inline -mt-0.5 ml-0.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" /><path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" /></svg>
+          <button class="bg-indigo-700 hover:bg-indigo-500 text-center flex justify-center items-center" @click="onCopyLink" :disabled="!!copyLinkMessage">
+          <span class=" mr-2"> {{ copyLinkMessage ||  'Linki paylaş' }}</span>    <svg v-if="!copyLinkMessage" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </button>
+
+          <div class="flex items-center gap-2 text-sm bg-yellow-50 text-yellow-600 dark:bg-yellow-700/50 dark:text-yellow-100/50 text-left mt-3 p-2 rounded">
+            <span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+            </span>
+            <span >Birlikte oynamak için oda linki paylaşın</span>
+            </div>
         </div>
       </div>
 
       <div v-if="gameState === GameState.WAITING || gameState === GameState.READY" id="waiting">
         <div>
-          <h2>En attente d'autres joueurs</h2>
+          <h2>Oyuncular bekleniyor</h2>
           <div class="waiting-list">
             <div class="waiting-player">
-              <span class="mr-5">{{ myPresence.name }} (moi)</span>
+              <span>{{ myPresence.name }} (sen)</span>
               <div :class="[myPresence.stage === GameState.READY ? 'waiting-player-ready' : 'waiting-player-waiting']">
-                {{ myPresence.stage === GameState.READY ? 'Prêt' : 'Se prépare...' }}
+                {{ myPresence.stage === GameState.READY ? 'Hazır' : 'Bekliyor' }}
               </div>
             </div>
             <div v-for="other in othersPresence" class="waiting-player">
               <span v-if="other.name">{{ other.name }}</span>
-              <span v-else><i>Se connecte...</i></span>
+              <span v-else><i>Adını seçiyor...</i></span>
               <div :class="[other.stage === GameState.WAITING || other.stage === GameState.INTRO ? 'waiting-player-waiting' : 'waiting-player-ready']">
-                {{ other.stage === GameState.READY ? 'Prêt' : other.stage === GameState.PLAYING ? 'Joue' : 'Se prépare...' }}
+                {{ other.stage === GameState.READY ? 'Hazır' : other.stage === GameState.PLAYING ? 'Oyanıyor' : 'Bekliyor' }}
               </div>
             </div>
             <button v-if="myPresence.stage !== GameState.READY" @click="updateGameStage(GameState.READY)" class="ready-button">
-              Prêt à jouer ?
+              Hazırsan, başla!
             </button>
             <button v-else @click="updateGameStage(GameState.WAITING)" class="unready-button">
-              Je ne suis pas prêt !
+              Hazır değil misin?
             </button>
             <div class="divider" />
-            <button class="copy-button" @click="onCopyLink">
-              {{ copyLinkMessage || 'Copier le lien' }} <svg xmlns="http://www.w3.org/2000/svg" class="inline -mt-0.5 ml-0.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" /><path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" /></svg>
+            <button class="bg-indigo-700 hover:bg-indigo-500 text-center flex justify-center items-center" @click="onCopyLink" :disabled="!!copyLinkMessage">
+              <span class=" mr-2"> {{ copyLinkMessage ||  'Linki paylaş' }}</span>   <svg v-if="!copyLinkMessage" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </button>
+            <div class="flex items-center gap-2 text-sm bg-yellow-50 text-yellow-600 dark:bg-yellow-700/50 dark:text-yellow-100/50 text-left mt-3 p-2 rounded">
+            <span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+            </span>
+              <span >Birlikte oynamak için oda linki paylaşın</span>
+            </div>
           </div>
 
+          <div v-if="startAnimation" class="start-animation">
+            <MiniBoard class="animate-ping" :large="true" :showLetters="true" :user="{ board: messages.fight }" :rows="messages.fight.length" />
+          </div>
         </div>
       </div>
 
+
       <div v-if="gameState === GameState.PLAYING || gameState === GameState.COMPLETE" id="playing">
-        <MiniScores :answerLength="answer.length" :sortedUsers="sortedUsers" :shrink="true" />
+        <MiniScores :sortedUsers="sortedUsers" :shrink="true" />
         <Game :answer="answer" @lettersGuessed="onLettersGuessed" @gameComplete="onGameComplete">
           <template v-slot:board-left>
             <div class="mini-board-container">
@@ -304,22 +327,37 @@ function createEmojiScore (successGrid: string) {
         </Game>
       </div>
 
+
       <Transition name="fade-scores">
         <div v-if="gameState === GameState.SCORES" id="scores">
           <div>
             <h2>
-              <span>Scores poeur le mot : <strong class="tracking-wider">{{ answer.toUpperCase() }}</strong></span>
+              <span class="underline underline-offset-1 decoration-emerald-400">
+                Doğru kelime:
+              </span>
+            <strong class="tracking-wider">{{ answer.toLocaleUpperCase('tr-TR') }}</strong>
+            </h2>
+            <h2>
+              <span> {{ answerDay }}. gün için nihai puanlar:</span>
             </h2>
             <div class="divider" />
             <div class="scores-grid">
               <MiniBoardScore v-for="(other, index) in sortUsers(savedScores().toArray())" :user="other" :position="index + 1" :showLetters="true" />
             </div>
-            <a href="/">
-            <button class="ready-button">
-              Rejouer
+            <button v-if="myPresence?.board?.length" @click="onCopyScoreBoard(emojiScore)" :disabled="!!copyLinkMessage" class="bg-indigo-700 hover:bg-indigo-500 text-center flex justify-center items-center">
+             <span class=" mr-2">{{ copyLinkMessage || 'Puan durumunu paylaş' }}</span>
+              <svg v-if="!copyLinkMessage" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             </button>
-            </a>
-            
+            <div class="divider" />
+            <div class="text-center mt-6">
+              Yeni bir Wordle Kapışması için yarın tekrar gelin!
+            </div>
+
           </div>
         </div>
       </Transition>
@@ -336,295 +374,254 @@ function createEmojiScore (successGrid: string) {
 </template>
 
 <style scoped>
-
-
 .transition-wrapper {
-	position: relative;
-	height: 100%
+  position: relative;
+  height: 100%;
 }
 
-.transition-wrapper>div {
-	min-height: 100%
+.transition-wrapper > div {
+  min-height: 100%;
 }
 
-#connecting,
-#intro,
-#waiting {
-	font-size: 18px;
-	background: #18181b
+#connecting, #intro, #waiting {
+  font-size: 18px;
+  background: #eff5f0;
+}
+
+.dark #connecting, .dark #intro, .dark #waiting, .dark #scores {
+  background: #18181B;
 }
 
 #connecting {
-	height: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-#intro>div,
-#waiting>div {
-	min-width: 320px;
-	width: max-content;
-	max-width: 100%;
-	background: #fff;
-	padding: 40px 35px 30px 35px;
-	display: flex;
-	align-items: center;
-	flex-direction: column
+#intro > div, #waiting > div {
+  width: 320px;
+  max-width: 100%;
+  background: #fff;
+  padding: 40px 35px 30px 35px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
-#intro>div,
-#waiting>div {
-	background: #27272a
+.dark #intro > div, .dark #waiting > div {
+  background: #27272A;
 }
 
 label {
-	font-size: 16px;
-	font-weight: 500;
-	opacity: .6
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.6;
 }
 
 input {
-	padding: 8px 10px;
-	border-radius: 4px;
-	border: 1px solid #d3d3d3;
-	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .05);
-	background: #18181b;
-	border-color: #52525b
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid lightgrey;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.dark input {
+  background: #18181B;
+  border-color: #52525B;
 }
 
 button {
-	width: 100%;
-	padding: 9px 10px;
-	border-radius: 4px;
-	color: #fff;
-	font-weight: 600;
-	transition: background-color ease-in-out 150ms, opacity 150ms ease-in-out;
-	margin-bottom: 0
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+  transition: background-color ease-in-out 150ms, opacity 150ms ease-in-out;
+  margin-top: 24px;
+  margin-bottom: 0;
 }
 
 button:disabled {
-	background-color: #1bb238!important
+  background-color: #1bb238 !important;
 }
 
-button:hover {
-	background-color: #28c549
-}
 
-button:active {
-	background-color: #1bb238
-}
-
-button:focus-visible,
-input:focus,
-input:focus-visible {
-	outline: 2px solid #118f2b
+input:focus-visible, input:focus, button:focus-visible {
+  outline: 2px solid #118f2b;
 }
 
 h2 {
-	font-size: 24px;
-	font-weight: 500;
-	text-align: center;
-	margin-bottom: 24px
+  font-size: 24px;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 24px;
 }
 
-#intro,
-#playing,
-#waiting {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	flex-grow: 1
+#intro, #waiting, #playing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
 }
 
 #playing {
-	justify-content: space-between
+  justify-content: space-between;
 }
 
 .mini-board-container {
-	margin: 0 40px;
-	display: grid;
-	grid-template-rows: repeat(2, calc(var(--height)/ 2));
-	grid-auto-columns: auto;
-	grid-auto-flow: column;
-	gap: 0 40px
+  margin: 0 40px;
+  display: grid;
+  grid-template-rows: repeat(2, calc(var(--height) / 2));
+  grid-auto-columns: auto;
+  grid-auto-flow: column;
+  gap: 0 40px;
 }
 
-#intro form,
-.waiting-list {
-	width: 100%;
-	margin: 0 auto
+#intro form, .waiting-list {
+  width: 100%;
+  max-width: 250px;
+  margin: 0 auto;
 }
 
-#intro form>* {
-	margin-bottom: 12px;
-	width: 100%
+#intro form > * {
+  display: block;
+  margin-bottom: 12px;
+  width: 100%;
 }
 
-#intro form>:last-child {
-	margin-bottom: 0
+#intro form > *:last-child {
+  margin-bottom: 0;
 }
 
 #intro form label {
-	text-align: left
+  text-align: left;
 }
 
 .small-center-message {
-	width: 100%;
-	text-align: center;
-	font-size: 16px;
-	font-weight: 500;
-	opacity: .6;
-	margin-top: 12px
+  width: 100%;
+  text-align: center;
+  font-weight: 500;
+  opacity: 0.6;
+  margin-top: 12px;
 }
 
 .waiting-player {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 12px
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-.waiting-player-ready,
-.waiting-player-waiting {
-	font-weight: 600
+.waiting-player-waiting, .waiting-player-ready {
+  font-weight: 600;
 }
 
 .waiting-player-message {
-	margin-top: 24px
+  margin-top: 24px;
 }
 
 .start-animation {
-	position: fixed;
-	display: flex;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	justify-content: center;
-	align-items: center
+  position: fixed;
+  display: flex;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  justify-content: center;
+  align-items: center;
 }
 
 #scores {
-	flex-grow: 1;
-	display: flex;
-	justify-content: center;
-	align-items: stretch;
-	flex-direction: column;
-	padding-top: 20px
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-direction: column;
+  padding-top: 20px;
 }
 
-#scores>div {
-	max-width: 538px;
-	width: 100%;
-	margin: 0 auto;
-	padding-bottom: 60px;
-	position: relative
+#scores > div {
+  max-width: 538px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 60px;
+  position: relative;
 }
 
 #scores h2 {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 10px
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .scores-grid {
-	width: 100%;
-	display: grid;
-	margin: 28px 0 10px;
-	grid-template-columns: repeat(2, 1fr);
-	grid-auto-rows: auto;
-	grid-gap: 40px
+  width: 100%;
+  display: grid;
+  margin: 28px 0 10px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: auto;
+  grid-gap: 40px;
 }
 
 .confetti-wrapper {
-	position: fixed;
-	top: -15%;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	z-index: 50;
-	pointer-events: none
+  position: fixed;
+  top: -15%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+  pointer-events: none;
 }
 
 .fade-scores-enter-active,
-.fade-scores-enter-from,
 .fade-scores-leave-active,
+.fade-scores-enter-from,
 .fade-scores-leave-to {
-	left: 50%;
-	transform: translateX(-50%)
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-@media (max-width:415px) {
-	header h1 {
-		font-size: 28px
-	}
+@media (max-width: 415px) {
+  header h1 {
+    font-size: 28px;
+  }
 }
 
-@media (max-width:715px) {
-	#intro,
-	#waiting {
-		display: block;
-		background: #fff
-	}
-	#intro>div,
-	#waiting>div {
-		margin: 0 auto;
-		box-shadow: none
-	}
-	#intro>div,
-	#waiting>div {
-		background: 0 0!important
-	}
-	#scores>div {
-		max-width: 250px
-	}
-	#scores h2 {
-		flex-direction: column
-	}
-	.scores-grid {
-		width: 250px;
-		grid-template-columns: repeat(1, 1fr)
-	}
-}
-
-@keyframes spinner-two {
-    0% {transform: rotate(0deg)}
-    to {transform: rotate(359deg)}
-}
-.gg-spinner-two {
-    transform: scale(var(--ggs,1));
-    box-sizing: border-box;
-    position: relative;
+@media (max-width: 715px) {
+  #intro, #waiting {
     display: block;
-    width: 50px;
-    height: 50px
-}
-.gg-spinner-two::after,
-.gg-spinner-two::before {
-    box-sizing: border-box;
-    display: block;
-    width: 50px;
-    height: 50px;
-    content: "";
-    position: absolute;
-    border-radius: 100px
-}
-.gg-spinner-two::before {
-    animation: spinner-two 1s cubic-bezier(.6,0,.4,1) infinite;
-    border: 3px solid transparent;
-    border-bottom-color: currentColor;
-    border-top-color: currentColor
-}
-.gg-spinner-two::after {
-    border: 3px solid;
-    opacity: .2
+    background: #fff;
+  }
+
+  #intro > div, #waiting > div {
+    margin: 0 auto;
+    box-shadow: none;
+  }
+
+  #intro > div, #waiting > div {
+    background: transparent !important;
+  }
+
+  #scores > div {
+    max-width: 250px;
+  }
+
+  #scores h2 {
+    flex-direction: column;
+  }
+
+  .scores-grid {
+    width: 250px;
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
 
 </style>

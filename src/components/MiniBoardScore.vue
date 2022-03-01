@@ -24,12 +24,6 @@ const { user, number, showLetters = false } = defineProps<{
   text-align: left;
 }
 
-.mini-board-final-score .mini-board-tile {
-  position: relative;
-  min-width: 35px;
-  margin: 2px;
-}
-
 .mini-board-name {
   position: relative;
   padding-bottom: 48px;
@@ -38,7 +32,7 @@ const { user, number, showLetters = false } = defineProps<{
   color: #000;
 }
 
-.mini-board-name {
+.dark .mini-board-name {
   color: #fff;
 }
 

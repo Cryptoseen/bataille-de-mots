@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { OtherUser, LetterState } from '../types'
 
-const { answerLength, user } = defineProps<{
-	answerLength: number,
-	user: OtherUser
+const { user } = defineProps<{
+  user: OtherUser
 }>()
 </script>
 
 <template>
   <div class="mini-score-scores">
-    <div class="mini-score-number correct" v-if="user.score[LetterState.CORRECT] === answerLength">
+    <div class="mini-score-number correct" v-if="user.score[LetterState.CORRECT] === 5">
       ✓
     </div>
     <div class="mini-score-number correct" v-else-if="user.score[LetterState.CORRECT] > 0">
@@ -21,7 +20,7 @@ const { answerLength, user } = defineProps<{
     <div class="mini-score-number present" v-if="user.score[LetterState.PRESENT] > 0">
       {{ user.score[LetterState.PRESENT] }}
     </div>
-    <div class="mini-score-number correct" v-else-if="user.score[LetterState.CORRECT] === answerLength">
+    <div class="mini-score-number correct" v-else-if="user.score[LetterState.CORRECT] === 5">
       ✓
     </div>
     <div class="mini-score-number absent" v-else>
@@ -33,7 +32,7 @@ const { answerLength, user } = defineProps<{
 <style scoped>
 
 .mini-score-scores {
-  --border-radius: 2px;
+  --border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;

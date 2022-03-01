@@ -2,10 +2,9 @@
 import { OtherUser } from '../types'
 import ScoreCard from './ScoreCard.vue'
 
-const { answerLength, sortedUsers, shrink = false } = defineProps<{
-  answerLength: number,
+const { sortedUsers, shrink = false } = defineProps<{
   sortedUsers: OtherUser[],
-  shrink?: boolean,
+  shrink?: boolean
 }>()
 
 </script>
@@ -13,20 +12,21 @@ const { answerLength, sortedUsers, shrink = false } = defineProps<{
 <template>
   <div class="mini-score-container">
     <div v-for="(user, index) in sortedUsers" :class="['mini-score', shrink && 'shrink']">
+
       <div class="mini-score-score">
         {{ index + 1 }}.
       </div>
       <div class="mini-score-name">{{ user.name }}</div>
-      <ScoreCard :answerLength="answerLength" :user="user" />
+      <ScoreCard :user="user" />
     </div>
     <div :class="['mini-score-mobile', shrink && 'shrink']">
-      <span v-if="sortedUsers[0].score.correct === answerLength">
-        <span class="mini-score-name">{{ sortedUsers[0].name }}</span> a terminé !
+      <span v-if="sortedUsers[0].score.correct === 5">
+        <span class="mini-score-name">{{ sortedUsers[0].name }}</span> kazandı!
       </span>
       <span v-else>
-        <span class="mini-score-name">{{ sortedUsers[0].name }}</span> est en tête avec 
+        <span class="mini-score-name">{{ sortedUsers[0].name }}</span> önde gidiyor
       </span>
-      <ScoreCard :answerLength="answerLength" :user="sortedUsers[0]" />
+      <ScoreCard :user="sortedUsers[0]" />
     </div>
   </div>
 </template>
@@ -41,12 +41,13 @@ const { answerLength, sortedUsers, shrink = false } = defineProps<{
   gap: 18px;
   margin: 0 auto;
   width: 100%;
+  max-width: 350px;
   font-size: 22px;
   padding-top: 20px;
 }
 
 .mini-score {
-  --border-radius: 2px;
+  --border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -69,7 +70,7 @@ const { answerLength, sortedUsers, shrink = false } = defineProps<{
   text-align: left;
 }
 
-.mini-score-score {
+.dark .mini-score-score {
   color: #A1A1AA;
 }
 
@@ -80,7 +81,7 @@ const { answerLength, sortedUsers, shrink = false } = defineProps<{
   text-align: center;
 }
 
-.mini-score-name {
+.dark .mini-score-name {
   color: #E5E7EB;
 }
 

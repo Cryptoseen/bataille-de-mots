@@ -1,9 +1,9 @@
 export const info = {
   hide: false,
-  title: 'Bataille de mots',
-  description: 'Jouez à Wordle en multijoueur',
-  githubHref: 'https://github.com/Aimee-RTLNG/wordle-wars',
+  title: 'Wordle Kapışması',
+  description: 'Bu Wordle klonunu başkalarıyla canlı oynamak için linki paylaşın. Kendinize karşı denemek için yeni bir pencerede açın.',
+  githubHref: 'https://github.com/CTNicholas/wordle-wars',
   codeSandboxHref: '',
-  twitterHref: '',
-  website: ''
+  twitterHref: 'https://twitter.com/@ibrahimuzn',
+  website: 'https://wordletr.vercel.app'
 }

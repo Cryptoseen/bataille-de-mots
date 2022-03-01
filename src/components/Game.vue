@@ -15,12 +15,12 @@ const { answer } = defineProps<{
 
 // Board state. Each tile is represented as { letter, state }
 const board = $ref(
-  Array.from({ length: 6 }, () =>
-    Array.from({ length: answer.length }, () => ({
-      letter: '',
-      state: LetterState.INITIAL
-    }))
-  )
+    Array.from({ length: 6 }, () =>
+        Array.from({ length: 5 }, () => ({
+          letter: '',
+          state: LetterState.INITIAL
+        }))
+    )
 )
 
 // Current active row.
@@ -49,7 +49,7 @@ onUnmounted(() => {
 
 function onKey (key: string) {
   if (!allowInput) return
-  if (/^[a-zA-Z]$/.test(key)) {
+  if (/^[a-zA-ZğüşöçıİĞÜŞÖÇ]$/.test(key)) {
     fillTile(key.toLowerCase())
   } else if (key === 'Backspace') {
     clearTile()
@@ -78,10 +78,10 @@ function clearTile () {
 
 function completeRow () {
   if (currentRow.every((tile) => tile.letter)) {
-    const guess = currentRow.map((tile) => tile.letter).join('').toLowerCase()
+    const guess = currentRow.map((tile) => tile.letter).join('')
     if (!allWords.includes(guess) && guess !== answer) {
       shake()
-      showMessage(`Mot inconnu 😐`)
+      showMessage(`Kelime listesinde yok`)
       return
     }
 
@@ -122,7 +122,7 @@ function completeRow () {
       setTimeout(() => {
         grid = genResultGrid()
         showMessage(
-          ['Giga boss', 'Magnifique', 'Impressionnant', 'Beaugosse', 'Bien', 'Juste wow'][
+          ['Hayattaki tüm şansını burada kullandın 🤓', 'Sen bir dahisin!', 'Bu etkileyiciydi!', 'Fevkalade!', 'Harika!', 'Sonunda bildin!'][
             currentRowIndex
           ],
           -1
@@ -139,13 +139,13 @@ function completeRow () {
     } else {
       // game over :(
       setTimeout(() => {
-        showMessage(answer.toUpperCase(), -1)
+        showMessage(answer.toLocaleUpperCase('tr-TR'), -1)
         emit('gameComplete', { success: false })
       }, 1600)
     }
   } else {
     shake()
-    showMessage('Pas assez de lettres !')
+    showMessage('Yeterli harf yok')
   }
 }
 
@@ -174,11 +174,11 @@ const icons = {
 
 function genResultGrid () {
   return board
-    .slice(0, currentRowIndex + 1)
-    .map((row) => {
-      return row.map((tile) => icons[tile.state]).join('')
-    })
-    .join('\n')
+      .slice(0, currentRowIndex + 1)
+      .map((row) => {
+        return row.map((tile) => icons[tile.state]).join('')
+      })
+      .join('\n')
 }
 </script>
 
@@ -189,7 +189,7 @@ function genResultGrid () {
     <div id="board">
       <div v-if="message" :class="['board-message', 'backdrop-blur', success && 'board-message-success']">
         <button v-if="success" @click="message = ''" class="absolute right-6 top-3 text-gray-300 hover:text-gray-100 focus:text-gray-100 w-8 h-8 flex items-center justify-center -mr-3 rounded-full">
-          <span class="sr-only">Fermer</span>
+          <span class="sr-only">İletişim kutusunu kapat</span>
           <svg class="w-6 h-6" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M2.96967 11.9697L11.9697 2.96967L13.0303 4.03033L4.03033 13.0303L2.96967 11.9697Z"></path>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M13.0303 11.9697L4.03033 2.96967L2.96968 4.03033L11.9697 13.0303L13.0303 11.9697Z"></path>
@@ -199,34 +199,35 @@ function genResultGrid () {
           {{ message }}
         </div>
         <div v-if="success">
-          On attend les nullos...
+          Diğer oyuncuların bitirmesini bekleyin...
         </div>
       </div>
       <div class="board-left">
         <slot name="board-left" />
       </div>
-      <div v-for="(row, index) in board" 
-        :class="[
+      <div
+          v-for="(row, index) in board"
+          :class="[
           'row',
           shakeRowIndex === index && 'shake',
           success && currentRowIndex === index && 'jump'
         ]"
       >
         <div
-          v-for="(tile, index) in row"
-          :class="['tile', tile.letter && 'filled', tile.state && 'revealed']"
+            v-for="(tile, index) in row"
+            :class="['tile', tile.letter && 'filled', tile.state && 'revealed']"
         >
           <div class="front" :style="{ transitionDelay: `${index * 300}ms` }">
-            {{ tile.letter }}
+            {{ tile.letter.replace(/i/g, 'İ') }}
           </div>
           <div
-            :class="['back', tile.state]"
-            :style="{
+              :class="['back', tile.state]"
+              :style="{
               transitionDelay: `${index * 300}ms`,
               animationDelay: `${index * 100}ms`
             }"
           >
-            {{ tile.letter }}
+            {{ tile.letter.replace(/i/g, 'İ') }}
           </div>
         </div>
       </div>
@@ -242,7 +243,7 @@ function genResultGrid () {
 
 <style scoped>
 #board-wrapper {
-  --border-radius: 4px;
+  --border-radius: 8px;
 
   display: flex;
   width: 100%;
@@ -261,6 +262,7 @@ function genResultGrid () {
   grid-gap: 5px;
   box-sizing: border-box;
   height: var(--height);
+  width: min(350px, calc(var(--height) / 6 * 5));
   position: relative;
 }
 
@@ -343,13 +345,13 @@ function genResultGrid () {
 }
 
 .row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 5px;
 }
 
 .tile {
   width: 100%;
-  min-width: 60px;
-  margin: 0 5px;
   font-size: 2rem;
   line-height: 2rem;
   font-weight: bold;
@@ -381,14 +383,26 @@ function genResultGrid () {
 }
 
 .tile {
+  color: #000;
+}
+
+.dark .tile {
   color: #fff;
 }
 
 .tile .front {
-  border: 2px solid #3F3F46;
+  border: 2px solid #d3d6da;
+}
+
+.dark .tile .front {
+  border-color: #3F3F46;
 }
 
 .tile.filled .front {
+  border-color: #999;
+}
+
+.dark .tile.filled .front {
   border-color: #52525B;
 }
 

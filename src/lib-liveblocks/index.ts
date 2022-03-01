@@ -1,5 +1,5 @@
 export *  from './symbols'
-export * from './useMyPresence'
+export * from './usePresence'
 export * from './useStorage'
 export * from './useOthers'
 export * from './useList'

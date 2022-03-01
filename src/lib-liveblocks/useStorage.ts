@@ -1,10 +1,7 @@
-import { inject, Ref, ref, watchEffect } from 'vue'
+import { inject, Ref, ref, watch, watchEffect } from 'vue'
 import { LiveObject, Room } from '@liveblocks/client'
 import { roomSymbol } from './symbols'
 
-/**
- * No `liveblocks-react` public API equivalent, but useStorage is used internally
- */
 export function useStorage (): Ref<() => LiveObject> {
   const room = inject<Room>(roomSymbol)
   // @ts-ignore

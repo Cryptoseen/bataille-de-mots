@@ -1,7 +1,3 @@
-<!--
-  Works similarly to `liveblocks-react` LiveblocksProvider
-  https://liveblocks.io/docs/api-reference/liveblocks-react#RoomProvider
--->
 <script setup lang="ts">
 import { provide } from 'vue'
 import { clientSymbol } from './symbols'
